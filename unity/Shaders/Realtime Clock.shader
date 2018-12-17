@@ -8,6 +8,7 @@ Shader "Maki/Realtime Clock" {
 		[HDR]_Color("Color", Color) = (1,1,1,1)
 		[HDR]_BgColor("Background Color", Color) = (0,0,0,1)
 		[Toggle(TICKTACK)] _ApplyTickTack("Discrete Seconds", Int) = 0
+		[Toggle(GAMMA)] _GammaCorrection("Gamma Correction", Int) = 1
 	}
 	SubShader {
 		Tags {
@@ -26,7 +27,7 @@ Shader "Maki/Realtime Clock" {
 			#pragma vertex vert
 			#pragma fragment frag
 			#pragma multi_compile_fog
-			#pragma multi_compile APPLY_GAMMA_OFF
+			#pragma multi_compile APPLY_GAMMA_OFF GAMMA
 			#pragma multi_compile TICKTACK_OFF TICKTACK
 
 			#include "UnityCG.cginc"
@@ -75,6 +76,12 @@ Shader "Maki/Realtime Clock" {
 				float3 first = tex2Dlod(_MainTex,float4(0.25,0.75,0,0)).rgb;
 				float3 second = tex2Dlod(_MainTex,float4(0.75,0.75,0,0)).rgb;
 				float3 third = tex2Dlod(_MainTex,float4(0.25,0.25,0,0)).rgb;
+
+#if GAMMA
+				first = pow(first, 1/2.2);
+				second = pow(second, 1/2.2);
+				third = pow(third, 1/2.2);
+#endif
 
 				float3 offsetTime = float3(
 					getHour(float3(first.r,second.g,third.b)),
