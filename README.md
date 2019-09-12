@@ -10,7 +10,7 @@ You can change the background and foreground colours in the material and change 
 
 ## How is time served?
 
-It fetches time from https://vrcclock.serveo.net/time-in-image
+It fetches time from http://vrcclock.mydns.jp:8080/time-in-image
 
 This is done by looking up your time from your IP using http://ip-api.com/json, `tz-lookup` and `moment-timezone`, then converts hours (h), minutes (m), seconds (s): 24,60,60 into 255,255,255.
 
