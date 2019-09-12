@@ -2,7 +2,7 @@
 
 > 🕒 Show the current time where you live on an analogue clock in VRChat.
 
-## [Download .UnityPackage here!](https://github.com/makitsune/realtime-clock/releases)
+## [Download .UnityPackage here!](https://github.com/Guilty-VRChat/realtime-clock/releases)
 
 It uses https://maki.cat for finding the time with your IP address, therefore it can sometimes return an inaccurate location, which can cause the time to be offsetted by an hour or two. And fyi, I don't track anything from my HTTP GET requests... That would be mean...
 
@@ -10,9 +10,9 @@ You can change the background and foreground colours in the material and change 
 
 ## How is time served?
 
-It fetches time from https://maki.cat/time-in-image
+It fetches time from https://vrcclock.serveo.net/time-in-image
 
-This is done by looking up your time from your IP using https://www.iplocation.net, `tz-lookup` and `moment-timezone`, then converts hours (h), minutes (m), seconds (s): 24,60,60 into 255,255,255.
+This is done by looking up your time from your IP using http://ip-api.com/json, `tz-lookup` and `moment-timezone`, then converts hours (h), minutes (m), seconds (s): 24,60,60 into 255,255,255.
 
 It then generates an 8x8 .png file where it has 4 sections of colour assembled like this: (each section shows r,g,b values)
 
