@@ -1,59 +1,45 @@
-<img height="130" src="https://maki.cat/vrchat/realtime_clock_github.png"/>
+> あなたが住んでいる地域の現在時刻をVRChat上でアナログ時計に表示します。
 
-> 🕒 Show the current time where you live on an analogue clock in VRChat.
+## [UnityPackageはここからダウンロードできます](https://github.com/Guilty-VRChat/realtime-clock/releases)
 
-## [Download .UnityPackage here!](https://github.com/Guilty-VRChat/realtime-clock/releases)
+現在時刻の取得に使うあなたの地域のIPアドレスは、GETリクエスト以外には使用しないためご安心ください。<br>
+時計本体と時計の針の色はマテリアルから変更できます。<br>
+時計の数字のフォントを変更したい場合は、AIファイルを利用することで新たにテクスチャを作成できます。<br>
 
-It uses https://maki.cat for finding the time with your IP address, therefore it can sometimes return an inaccurate location, which can cause the time to be offsetted by an hour or two. And fyi, I don't track anything from my HTTP GET requests... That would be mean...
+## 現在時刻の取得方法について
 
-You can change the background and foreground colours in the material and change the numbers texture aswell. I kept the .ai file so you can change fonts easily. The mesh uses vertex colors to index each time handle so keep that in mind if you want to edit it!
+現在時刻は http://vrcclock.mydns.jp:8080/time-in-image から取得します。
 
-## How is time served?
-
-It fetches time from http://vrcclock.mydns.jp:8080/time-in-image
-
-This is done by looking up your time from your IP using http://ip-api.com/json, `tz-lookup` and `moment-timezone`, then converts hours (h), minutes (m), seconds (s): 24,60,60 into 255,255,255.
-
-It then generates an 8x8 .png file where it has 4 sections of colour assembled like this: (each section shows r,g,b values)
+IPアドレスをもとに http://ip-api.com/json から緯度と経度を取得し、現在時刻を取得します。<br>
+そして、24:60:60形式の現在時刻(HH時MM分SS秒)を256:256:256形式に変換し、以下のように16進カラーとして8x8のJPG画像を生成します。
 
 <table>
-	<tr><td>h,m,s</td><td>s,h,m</td></tr>
-	<tr><td>m,s,h</td><td>0,0,0</td></tr>
+	<tr><td>#HHMMSS</td><td>#SSHHMM</td></tr>
+	<tr><td>#MMSSHH</td><td>#000000</td></tr>
 </table>
 
-The shader then looks up each value from the three sections and averages them to get an accurate reading of the current time. The reason why we split them up between red, green and blue is because we were having issues with sRGB and gamma changing them. Though by using `VRC_Panorama`, this might be completely unnecessary.
+現在時刻は、各部分の各HHと各MMと各SSの平均値をガンマ補正して求めることで正確に算出されます。
 
-**Caching** was also an issue which we solved by redirecting `/time-in-image` to `/time-in-image/[random string of letters].png`. Otherwise it would turn back time when you rejoined your world.
+## サーバーのセットアップ方法
+git, node, npm, forever等は先にインストールしてください。
 
-My **web server** to generate the image was made using Node.js with the modules: `express`, `request` and `jimp`
-
-## How do I setup a server?
-
-I would 1000% appreciate if you were to host it yourself. I'm like, 99.8% uptime, but I try my best~ You will need `node`, `npm` and `git` to continue.
-
-Before running `app.js`, I recommend you take a look at the file and editing the settings variable at the top. You can easily attach `time-in-image.js` onto any Express server. https://maki.cat uses https and a few other middlewares before it gets to the route. If you need help settings things up, I'm on Discord at `Maki#4845`.
+以下のコマンドを実行することで、サーバーをセットアップできます。<br>
+(RaspberryPiの場合は必要に応じてコマンドの先頭にsudoをつける。)
 
 ```sh
-git clone https://github.com/makitsune/realtime-clock
-cd realtime-clock/server
+git clone https://github.com/Guilty-VRChat/realtime-clock
+cd ./realtime-clock/server
 npm install
 node app.js
 ```
 
-Once running, a link will spew out with your local address. Take your public IP, add the port and path to it, and replace the old URL in the `VRC_Panorama` component with your new one. Make sure your IP/hostname is static. I use my [cloudflare-ddns](https://github.com/makitsune/cloudflare-ddns) for that.
-
-If you want it to run indefinitely, I recommend using a process manager like `pm2`.
+実行を永続化したい場合、起動時に以下のコマンドを実行する。<br>
+(例えば、RaspberryPiの場合/etc/rc.localに記述する。)
 
 ```sh
-npm install pm2 -g
-pm2 start app.js --name "Realtime Clock"
+"nodeのパス" "forever のパス" start -a -d "動かしたいスクリプトのパス"
+
+# 例(RaspberryPiの場合)
+sudo -u pi "nodeのパス" "forever のパス" start -a -d "動かしたいスクリプトのパス"
 ```
 
-## Thank you!
-
-Made by [Maki](https://github.com/makitsune) and
-[Desunyan](https://github.com/Shii2) with lots of love~ *nyan, nyan* <3
-
-*P.S. dont head pat me in vrchat pls...*<br>
-*P.P.S. Desunyan approves this readme. meow~ ^.^*<br>
-*P.P.P.S. he actually just commited that^, so he could pin to his github... x3*
