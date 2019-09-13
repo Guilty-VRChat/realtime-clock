@@ -37,9 +37,9 @@ node app.js
 (例えば、RaspberryPiの場合/etc/rc.localに記述する。)
 
 ```sh
-"nodeのパス" "forever のパス" start -a -d "動かしたいスクリプトのパス"
+"nodeのパス" "forever のパス" start -a -d "app.jsのパス"
 
 # 例(RaspberryPiの場合)
-sudo -u pi "nodeのパス" "forever のパス" start -a -d "動かしたいスクリプトのパス"
+sudo -u pi "nodeのパス" "forever のパス" start -a -d "app.jsのパス"
 ```
 
