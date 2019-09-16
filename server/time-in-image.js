@@ -8,6 +8,7 @@ const exec = require("child_process").exec;
 const make8x8ImageBufferWith4Colors = c => {
 	return new Promise((resolve, reject) => {
 		let imageData = [];
+
 		for(var i = 0; i < 64; i++) {
 			let colorIndex;
 
@@ -55,28 +56,25 @@ var cachedTzs = {};
 setInterval(() => {
 	cachedTzs = {};
 }, 1000 * 60 * 60 * 24 * 7);
-// every 7 days clear
 
 const TimeInImage = function(app, path) {
 	this.onRequest = () => {};
-
 	var timeStr = "";
 
 	app.get(path + "/:random", (req, res) => {
 		this.onRequest(req);
-
 		res.header({"Content-Type" : "image/jpg"});
-
 		let ip = (req.ip.split(":")[3]);
-		exec("echo '" + "Done." + "\n' >> /home/pi/realtime-clock/server/ip_log.txt", (err, _, stderr) => {
-			if(err) {
-				console.log(err);
-			}
-		});
+
 		if(cachedTzs[ip]) {
 			var time = moment().tz(cachedTzs[ip]).format("HH:mm:ss").split(":").map(x => parseInt(x));
 
-			timeStr = String(("00" + Math.round(time[0])).slice(-2)) + "h" + String(("00" + Math.round(time[1])).slice(-2)) + "m" + String(("00" + Math.round(time[2])).slice(-2)) + "s";
+			var ampm = "AM";
+			if(Math.round(time[0]) >= 12) {
+				time[0] -= 12;
+				ampm = "PM";
+			}
+			timeStr = ampm + String(Math.round(time[0])) + "h" + String(Math.round(time[1])) + "m" + String(Math.round(time[2])) + "s";
 
 			makeTimeImageBuffer(time).then(buffer => {
 				res.end(buffer);
@@ -96,12 +94,15 @@ const TimeInImage = function(app, path) {
 			} try {
 				console.log(body);
 				let tz = tzlookup(body.lat, body.lon);
-
 				cachedTzs[ip] = tz;
-
 				var time = moment().tz(tz).format("HH:mm:ss").split(":").map(x => parseInt(x));
 
-				timeStr = String(("00" + Math.round(time[0])).slice(-2)) + "h" + String(("00" + Math.round(time[1])).slice(-2)) + "m" + String(("00" + Math.round(time[2])).slice(-2)) + "s";
+				var ampm = "AM"
+				if(Math.round(time[0]) >= 12) {
+					time[0] -= 12;
+					ampm = "PM";
+				}
+				timeStr = ampm + String(Math.round(time[0])) + "h" + String(Math.round(time[1])) + "m" + String(Math.round(time[2])) + "s";
 
 				makeTimeImageBuffer(time).then(buffer => {
 					res.end(buffer);
