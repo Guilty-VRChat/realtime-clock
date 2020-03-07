@@ -1,22 +1,18 @@
-// --------------------------------
-const settings = {
-	port: 8080,
-	path: "/time-in-image"
-};
-// --------------------------------
+const port = 8080;
 
 const express = require("express");
-const TimeInImage = require(__dirname + "/time-in-image");
+const helmet = require("helmet");
+const TimeInImage = require(__dirname + "/TimeInImage");
 
 var app = express();
+app.use(helmet());
 
-var timeInImage = new TimeInImage(app, settings.path);
+var timeInImage = new TimeInImage(app);
 timeInImage.onRequest = req => {
-	let ip = req.ip.split(":")[3];
-	console.log(ip += " requested the time");
+    console.log("--------Requested--------");
 }
 
-app.listen(settings.port, () => {
-	console.log("Web server open at *:" + settings.port + settings.path);
+app.listen(port, () => {
+    console.log("Web Server Opened At - PublicIP:" + port + "/:type\n");
 });
 
